@@ -152,3 +152,5 @@ cython_debug/
 #.idea/
 .vscode/settings.json
 test.py
+test_thread.py
+test_windows_hide.py
