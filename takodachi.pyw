@@ -7,10 +7,17 @@ from PIL import Image
 import configs as Configs
 import bot as DiscordBot
 import subprocess
+from logging.config import fileConfig
 
 class App():
     def __init__(self):
+        self.init_logger()
         self.init_icon()
+
+    def init_logger(self):
+        if not os.path.exists(Configs.LOG_DIRECTORY):
+            os.makedirs(Configs.LOG_DIRECTORY)
+        fileConfig(Configs.LOGGER_CONFIGS_PATH, disable_existing_loggers=False,encoding="utf-8")
 
     def init_icon(self):
         twitch_submenu = Menu(
@@ -18,9 +25,9 @@ class App():
             MenuItem("Archive Only",action=self.archive_twitch_stream_with_CMD),
         )
         app_menu = Menu(
-            MenuItem("Archive Youtube Stream", action=self.archive_youtube_stream_with_cmd, default=True),
+            MenuItem("Archive Youtube Stream", action=self.archive_youtube_stream_with_CMD, default=True),
             MenuItem("Archive Twitch Stream...", twitch_submenu),
-            MenuItem("Archive Video", action=self.archive_video_with_cmd),
+            MenuItem("Archive Video", action=self.archive_video_with_CMD),
             Menu.SEPARATOR,
             MenuItem("Show Logs", action=self.show_logs),
             MenuItem("Show Status", action=self.status),
@@ -29,16 +36,16 @@ class App():
         )
         self.icon = Icon(name=Configs.APP_NAME, title=Configs.APP_TITLE, icon=Image.open(Configs.APP_ICON_PATH), menu=app_menu)
 
-    def archive_youtube_stream_with_cmd(self):
-        subprocess.Popen(['start', '', Configs.ARCHIVE_YOUTUBE_STREAM_PAT_PATCH], shell=True)
+    def archive_youtube_stream_with_CMD(self):
+        subprocess.Popen(['start', '', Configs.ARCHIVE_YOUTUBE_STREAM_BAT_PATCH], shell=True)
 
     def archive_and_play_twitch_stream_with_CMD(self):
-        subprocess.Popen(['start', '', Configs.ARCHIVE_AND_PLAY_TWITCH_STREAM_PAT_PATCH], shell=True)
+        subprocess.Popen(['start', '', Configs.ARCHIVE_AND_PLAY_TWITCH_STREAM_BAT_PATCH], shell=True)
 
     def archive_twitch_stream_with_CMD(self):
-        subprocess.Popen(['start', '', Configs.ARCHIVE_TWITCH_STREAM_PAT_PATCH], shell=True)
+        subprocess.Popen(['start', '', Configs.ARCHIVE_TWITCH_STREAM_BAT_PATCH], shell=True)
 
-    def archive_video_with_cmd(self):
+    def archive_video_with_CMD(self):
         subprocess.Popen(['start', '', Configs.ARCHIVE_VIDEO_BAT_PATCH], shell=True)
 
     def show_logs(self): 
@@ -48,11 +55,11 @@ class App():
         subprocess.Popen(['start', '', Configs.STATUS_PATCH], shell=True)
 
     def run(self):
-        #self.start_discord_bot_thread()
+        self.start_discord_bot_thread()
         self.icon.run()
 
     def exit_application(self):
-        #self.stop_discord_bot_thread()
+        self.stop_discord_bot_thread()
         self.icon.visible = False
         self.icon.stop()
         os._exit(0)
