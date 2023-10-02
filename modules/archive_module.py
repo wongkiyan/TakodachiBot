@@ -23,13 +23,11 @@ async def archive_live_stream(ctx, command):
     if 'twitch' in command:
         source_type = 'twitch'
     command = get_process_command[source_type] + ' ' + command
-    print(command)
     await start_archive(ctx, command)
 
 async def archive_video(ctx, command):
     source_type = 'video'
     command = get_process_command[source_type] + ' ' + command
-    print(command)
     await start_archive(ctx, command)
 
 #https://www.cnblogs.com/security-darren/p/4733368.html
@@ -70,7 +68,7 @@ async def start_archive(ctx, command):
             else:
                 log.info(line)
     except Exception as e:
-        message = 'Error Occurred : [{}] while archiving [{}]'.format(str(e),command)
+        message = 'Error Occurred : [{}] while archiving [{}]'.format(str(e),video_id)
         log.error(message)
         await ctx.send(message)
     finally:
