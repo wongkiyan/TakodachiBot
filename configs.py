@@ -32,7 +32,7 @@ STATUS_PATCH = "C:/Users/User/Documents/Discord/TakodachiBot_Status.bat"
 
 # Archive command
 ARCHIVE_YOUTUBE_LIVE_COMMAND = "yt-dlp --no-progress"
-ARCHIVE_TWITCH_LIVE_COMMAND = "streamlink --progress no"
+ARCHIVE_TWITCH_LIVE_COMMAND = "streamlink --progress no --output C:/Users/User/Videos/Vtuber/{author}/{time:%Y%m%d}_{category}_{title}.ts"
 ARCHIVE_VIDEO_COMMAND = 'yt-dlp --no-progress --external-downloader aria2c --downloader-args aria2c:"-x 8 -k 1M"'
 
 # Logger setting
