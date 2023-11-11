@@ -4,17 +4,18 @@ from discord.ext.commands import Bot
 import platform
 
 # Import configurations
-import configs
+import configs as Configs
 
 # Modules import - this imports all modules under the modules directory
 # IDEs will complain about unresolved references, but it runs as intended
 from modules import archive_module
+from modules import web_scraper_module
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-client = Bot(description=configs.BOT_DESCRIPTION, command_prefix=configs.BOT_PREFIX, intents=intents)
+client = Bot(description=Configs.BOT_DESCRIPTION, command_prefix=Configs.BOT_PREFIX, intents=intents)
 
 @client.event
 async def on_ready():
@@ -43,3 +44,7 @@ async def savel(ctx, command):
 @client.command()
 async def savev(ctx, command):
     await archive_module.archive_video(ctx, command)
+
+@client.command()
+async def live(ctx):
+    await web_scraper_module.get_schedule_data(ctx)

@@ -154,3 +154,10 @@ cython_debug/
 test.py
 test_thread.py
 test_windows_hide.py
+test/test_web_scraper.py
+test/test_notify.py
+test/test_volume_control.py
+test/test_volume_control_asyncio.py
+test/test_volume_control_thread.py
+test/test_web_scrap
+test/test_web_scrap2
