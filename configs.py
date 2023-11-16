@@ -21,7 +21,7 @@ BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 BOT_PREFIX = os.getenv("DISCORD_BOT_PREFIX", '!')
 
 # Database setting
-DATABASE_NAME = "data.db"
+DATABASE_NAME = "data/data.db"
 
 # Logger setting
 LOG_DIRECTORY = 'logs'
@@ -43,7 +43,8 @@ ARCHIVE_TWITCH_LIVE_COMMAND              = os.getenv("ARCHIVE_TWITCH_LIVE_COMMAN
 ARCHIVE_VIDEO_COMMAND                    = os.getenv("ARCHIVE_VIDEO_COMMAND")
 # endregion
 
-# region Web scraper
+# region Hololive Schedule
 WEB_HOLOLIVE_SCHEDULE = "https://schedule.hololive.tv/"
 
+LIST_HOLOLIVE_SINGING_STREAM_KEYWORDS = ['karaoke','sing', 'uta', '歌', 'カラオケ']
 # endregion
