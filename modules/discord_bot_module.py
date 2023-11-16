@@ -2,20 +2,26 @@
 import discord
 from discord.ext.commands import Bot
 import platform
+import asyncio
 
-# Import configurations
+if __name__ == "__main__":
+    import os, sys
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import configs as Configs
 
-# Modules import - this imports all modules under the modules directory
-# IDEs will complain about unresolved references, but it runs as intended
+# Modules import
 from modules import archive_module
-from modules import web_scraper_module
+
+from library.service import ModuleService
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-client = Bot(description=Configs.BOT_DESCRIPTION, command_prefix=Configs.BOT_PREFIX, intents=intents)
+client = Bot(description=Configs.BOT_DESCRIPTION,command_prefix=Configs.BOT_PREFIX, intents=intents)
+
+discord_loop = asyncio.new_event_loop()
+asyncio.set_event_loop(discord_loop)
 
 @client.event
 async def on_ready():
@@ -23,7 +29,7 @@ async def on_ready():
     print('Takodachi Bot')
     print('--------')
     print('Logged in as ' + client.user.name + ' (ID:' + str(client.user.id) + ') | Connected to '
-        + str(len(client.guilds)) + ' servers | Connected to ' + str(len(set(client.get_all_members()))) + ' users')
+            + str(len(client.guilds)) + ' servers | Connected to ' + str(len(set(client.get_all_members()))) + ' users')
     print('--------')
     print('Current Discord.py Version: {} | Current Python Version: {}'.format(
         discord.__version__, platform.python_version()))
@@ -45,6 +51,27 @@ async def savel(ctx, command):
 async def savev(ctx, command):
     await archive_module.archive_video(ctx, command)
 
-@client.command()
-async def live(ctx):
-    await web_scraper_module.get_schedule_data(ctx)
+class DiscordBotService(ModuleService):
+    def start(self):
+        asyncio.run_coroutine_threadsafe(client.start(Configs.BOT_TOKEN), discord_loop)
+        discord_loop.run_forever()
+
+    def stop(self):
+        if not client.is_closed():
+            asyncio.run_coroutine_threadsafe(client.close(), discord_loop)
+        client.clear()
+        print()
+        print("Discord Bot closed")
+        discord_loop.stop()
+
+    def is_running(self):
+        return client.is_ready()
+
+    def is_closed(self):
+        return client.is_closed()
+
+
+discord_bot_service = DiscordBotService()
+
+if __name__ == "__main__":
+    discord_bot_service.start()

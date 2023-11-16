@@ -150,14 +150,6 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
 .vscode/settings.json
-test.py
-test_thread.py
-test_windows_hide.py
-test/test_web_scraper.py
-test/test_notify.py
-test/test_volume_control.py
-test/test_volume_control_asyncio.py
-test/test_volume_control_thread.py
-test/test_web_scrap
-test/test_web_scrap2
+test/

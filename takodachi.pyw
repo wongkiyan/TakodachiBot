@@ -5,77 +5,113 @@ from threading import Thread
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
 import configs as Configs
-import bot as DiscordBot
 import subprocess
+from tkinter import messagebox as Messagebox
 from logging.config import fileConfig
+from concurrent.futures import ThreadPoolExecutor
+from modules.volume_module import volume_manager
+from modules.discord_bot_module import discord_bot_manager
+from library.manager import environment_manager
 
 class App():
     def __init__(self):
+        self.loop = asyncio.get_event_loop()
+        self.executor = ThreadPoolExecutor()
+        self.bot_task = None
         self.init_logger()
         self.init_icon()
 
     def init_logger(self):
         if not os.path.exists(Configs.LOG_DIRECTORY):
             os.makedirs(Configs.LOG_DIRECTORY)
-        fileConfig(Configs.LOGGER_CONFIGS_PATH, disable_existing_loggers=False,encoding="utf-8")
+        fileConfig(Configs.LOGGER_CONFIGS_PATH, disable_existing_loggers=False, encoding="utf-8")
 
-    def init_icon(self):
+    def init_icon(self):  # Taskbar
         twitch_submenu = Menu(
-            MenuItem("Archive And Play",action=self.archive_and_play_twitch_stream_with_CMD),
-            MenuItem("Archive Only",action=self.archive_twitch_stream_with_CMD),
+            MenuItem("Archive And Play", self.archive_and_play_twitch_stream_with_CMD),
+            MenuItem("Archive Only", self.archive_twitch_stream_with_CMD),
+        )
+        volume_submenu = Menu(
+            MenuItem("Start Limit Volume", self.start_limit_volume_thread),
+            MenuItem("Stop Limit Volume", self.stop_limit_volume_thread),
         )
         app_menu = Menu(
-            MenuItem("Archive Youtube Stream", action=self.archive_youtube_stream_with_CMD, default=True),
+            MenuItem("Archive Youtube Stream",  self.archive_youtube_stream_with_CMD, default = True),
             MenuItem("Archive Twitch Stream...", twitch_submenu),
-            MenuItem("Archive Video", action=self.archive_video_with_CMD),
+            MenuItem("Archive Video", self.archive_video_with_CMD),
             Menu.SEPARATOR,
-            MenuItem("Show Logs", action=self.show_logs),
-            MenuItem("Show Status", action=self.status),
+            MenuItem("App Logs", self.show_logs),
+            MenuItem("App Status", self.show_status),
+            MenuItem("Discord Status", self.show_discord),
             Menu.SEPARATOR,
-            MenuItem("Exit", action=self.exit_application),
+            MenuItem("Volume Control",volume_submenu),
+            Menu.SEPARATOR,
+            MenuItem("Exit", action=self.exit),
         )
         self.icon = Icon(name=Configs.APP_NAME, title=Configs.APP_TITLE, icon=Image.open(Configs.APP_ICON_PATH), menu=app_menu)
 
     def archive_youtube_stream_with_CMD(self):
-        subprocess.Popen(['start', '', Configs.ARCHIVE_YOUTUBE_STREAM_BAT_PATCH], shell=True)
+        process = subprocess.Popen(['start', '', Configs.ARCHIVE_YOUTUBE_STREAM_BAT_PATCH], shell=True)
+        # self.add_process(process)
 
     def archive_and_play_twitch_stream_with_CMD(self):
-        subprocess.Popen(['start', '', Configs.ARCHIVE_AND_PLAY_TWITCH_STREAM_BAT_PATCH], shell=True)
+        process = subprocess.Popen(['start', '', Configs.ARCHIVE_AND_PLAY_TWITCH_STREAM_BAT_PATCH], shell=True)
+        # self.add_process(process)
 
     def archive_twitch_stream_with_CMD(self):
-        subprocess.Popen(['start', '', Configs.ARCHIVE_TWITCH_STREAM_BAT_PATCH], shell=True)
+        process = subprocess.Popen(['start', '', Configs.ARCHIVE_TWITCH_STREAM_BAT_PATCH], shell=True)
+        # self.add_process(process)
 
     def archive_video_with_CMD(self):
-        subprocess.Popen(['start', '', Configs.ARCHIVE_VIDEO_BAT_PATCH], shell=True)
+        process = subprocess.Popen(['start', '', Configs.ARCHIVE_VIDEO_BAT_PATCH], shell=True)
+        # self.add_process(process)
 
-    def show_logs(self): 
+    def show_logs(self):
         os.startfile("logs")
 
-    def status(self):
-        subprocess.Popen(['start', '', Configs.STATUS_PATCH], shell=True)
+    def show_status(self):
+        subprocess.Popen(['start', '', Configs.APP_STATUS_BAT_PATCH], shell=True)
+
+    def show_discord(self):
+        if discord_bot_manager.is_ready():
+            return self.notify("Discord Bot is ready!" ) 
+        return self.notify("Discord Bot is closed!" )
+
+    def notify(self, notify_message):
+        self.icon.notify(
+            title='Takodachi says',
+            message=notify_message,)
 
     def run(self):
-        self.start_discord_bot_thread()
+        self.start_discord_bot()
         self.icon.run()
 
-    def exit_application(self):
-        self.stop_discord_bot_thread()
+    def exit(self):
+        if discord_bot_manager.is_running():
+            self.stop_discord_bot()
+        # self.stop_limit_volume_thread()
         self.icon.visible = False
         self.icon.stop()
         os._exit(0)
 
-    def start_discord_bot_thread(self):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.create_task(DiscordBot.client.start(Configs.BOT_TOKEN))
-        self.t1=Thread(target=loop.run_forever)
-        self.t1.start()
+    def start_discord_bot(self):
+        self.loop.run_in_executor(self.executor, discord_bot_manager.start)
 
-    def stop_discord_bot_thread(self):
-        asyncio.get_event_loop().stop()
-        if self.t1 is not None:
-            self.t1.join()
-        
+    def stop_discord_bot(self):
+        if not discord_bot_manager.is_closed():
+            self.loop.run_in_executor(self.executor, discord_bot_manager.stop)
+
+    def start_limit_volume_thread(self):
+        if not environment_manager.is_admin():
+            return self.notify("This script requires administrative privileges to modify audio settings.")
+
+        self.loop.run_in_executor(self.executor, volume_manager.start)
+
+    def stop_limit_volume_thread(self):
+        if not environment_manager.is_admin():
+            return self.notify("This script requires administrative privileges to modify audio settings.")
+
+        self.loop.run_in_executor(self.executor, volume_manager.stop)
 
 if __name__ == "__main__":
     app = App()

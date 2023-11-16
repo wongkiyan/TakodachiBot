@@ -13,13 +13,13 @@ import re
 log = logging.getLogger('archive')
 
 get_process_command = {
-    'youtube' : Configs.ARCHIVE_YOUTUBE_LIVE_COMMAND,
+    'default' : Configs.ARCHIVE_YOUTUBE_LIVE_COMMAND,
     'twitch' : Configs.ARCHIVE_TWITCH_LIVE_COMMAND,
     'video' : Configs.ARCHIVE_VIDEO_COMMAND,
 }
 
 async def archive_live_stream(ctx, command):
-    source_type = 'youtube'
+    source_type = 'default'
     if 'twitch' in command:
         source_type = 'twitch'
     command = get_process_command[source_type] + ' ' + command
@@ -53,27 +53,30 @@ async def unbuffered(command_result, stream='stdout'):
 async def start_archive(ctx, command):
     video_id = get_video_id_from_command(command)
     await ctx.send("Start archiving: {}".format(video_id))
-    log.info("Start archiving: {}".format(command))
+    log.debug("Start archiving: {}".format(command))
     # first_line = True
     try:
-        command_result = subprocess.Popen(command ,stdout=subprocess.PIPE ,stderr=subprocess.STDOUT ,universal_newlines=True)
+        command_result = subprocess.Popen(command ,stdout=subprocess.PIPE ,stderr=subprocess.STDOUT ,universal_newlines=True, shell=True)
         async for line in unbuffered(command_result):
             # if line.startswith("[youtube]"):
             #     if(first_line):
             #         await ctx.send(line)
             #         first_line=False
+            if line.strip() == "":
+                continue
+            if line.startswith("[MetadataParser]"):
+                continue
             if line.startswith("ERROR"):
                 await ctx.send("Error Occurred!: " + ':'.join(line.split(':')[-2:]).strip())
                 log.error(line.split(":", 1)[1].strip())
-            else:
-                log.info(line)
+                continue
+            log.info(line)
     except Exception as e:
         message = 'Error Occurred : [{}] while archiving [{}]'.format(str(e),video_id)
         log.error(message)
         await ctx.send(message)
     finally:
-        log.info("Archive completed: {}".format(command))
-        log.info("")
+        log.debug("Archive completed: {}".format(command))
         await ctx.send("Archive completed: {}".format(video_id))
 
 def get_video_id_from_command(command):
