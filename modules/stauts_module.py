@@ -51,8 +51,6 @@ def print_process_data_list():
             print(f"沒有PID為{pid}的行程")
         except psutil.AccessDenied:
             print(f"拒絕存取PID為{pid}的程序")
-        except psutil.ZombieProcess:
-            print(f"PID為{pid}的行程是殭屍行程")
 
 # 定義要尋找的程序名稱
 process_python_file_name = "takodachi.pyw"

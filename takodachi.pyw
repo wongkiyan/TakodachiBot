@@ -9,15 +9,17 @@ import subprocess
 from tkinter import messagebox as Messagebox
 from logging.config import fileConfig
 from concurrent.futures import ThreadPoolExecutor
-from modules.volume_module import volume_manager
-from modules.discord_bot_module import discord_bot_manager
-from library.manager import environment_manager
+from modules.discord_bot_module import DiscordBotService
+from modules.volume_control_module import VolumeControlService
+from library.managers.environment_manager import EnvironmentManager
 
 class App():
     def __init__(self):
         self.loop = asyncio.get_event_loop()
         self.executor = ThreadPoolExecutor()
-        self.bot_task = None
+        self.services = {}
+        self.discord_bot_service = DiscordBotService()
+        self.volume_control_service = VolumeControlService()
         self.init_logger()
         self.init_icon()
 
@@ -32,8 +34,8 @@ class App():
             MenuItem("Archive Only", self.archive_twitch_stream_with_CMD),
         )
         volume_submenu = Menu(
-            MenuItem("Start Limit Volume", self.start_limit_volume_thread),
-            MenuItem("Stop Limit Volume", self.stop_limit_volume_thread),
+            MenuItem("Start Limit Volume", self.start_volume_control_service),
+            MenuItem("Stop Limit Volume", self.stop_volume_control_service),
         )
         app_menu = Menu(
             MenuItem("Archive Youtube Stream",  self.archive_youtube_stream_with_CMD, default = True),
@@ -41,8 +43,8 @@ class App():
             MenuItem("Archive Video", self.archive_video_with_CMD),
             Menu.SEPARATOR,
             MenuItem("App Logs", self.show_logs),
-            MenuItem("App Status", self.show_status),
-            MenuItem("Discord Status", self.show_discord),
+            MenuItem("App Status", self.show_app_status),
+            MenuItem("Discord Status", self.show_discord_status),
             Menu.SEPARATOR,
             MenuItem("Volume Control",volume_submenu),
             Menu.SEPARATOR,
@@ -69,11 +71,11 @@ class App():
     def show_logs(self):
         os.startfile("logs")
 
-    def show_status(self):
+    def show_app_status(self):
         subprocess.Popen(['start', '', Configs.APP_STATUS_BAT_PATCH], shell=True)
 
-    def show_discord(self):
-        if discord_bot_manager.is_ready():
+    def show_discord_status(self):
+        if self.discord_bot_service.is_running():
             return self.notify("Discord Bot is ready!" ) 
         return self.notify("Discord Bot is closed!" )
 
@@ -83,35 +85,34 @@ class App():
             message=notify_message,)
 
     def run(self):
-        self.start_discord_bot()
+        self.start_discord_bot_service()
         self.icon.run()
 
     def exit(self):
-        if discord_bot_manager.is_running():
-            self.stop_discord_bot()
-        # self.stop_limit_volume_thread()
+        if self.discord_bot_service.is_running():
+            self.stop_discord_bot_service()
+        if self.volume_control_service.is_running():
+            self.stop_volume_control_service()
         self.icon.visible = False
         self.icon.stop()
         os._exit(0)
 
-    def start_discord_bot(self):
-        self.loop.run_in_executor(self.executor, discord_bot_manager.start)
+    def start_discord_bot_service(self):
+        self.loop.run_in_executor(self.executor, self.discord_bot_service.start_service)
 
-    def stop_discord_bot(self):
-        if not discord_bot_manager.is_closed():
-            self.loop.run_in_executor(self.executor, discord_bot_manager.stop)
+    def stop_discord_bot_service(self):
+        if self.discord_bot_service.is_running():
+            self.loop.run_in_executor(self.executor, self.discord_bot_service.stop_service)
 
-    def start_limit_volume_thread(self):
-        if not environment_manager.is_admin():
+    def start_volume_control_service(self):
+        if not EnvironmentManager.is_admin():
             return self.notify("This script requires administrative privileges to modify audio settings.")
+        self.loop.run_in_executor(self.executor, self.volume_control_service.start_service)
 
-        self.loop.run_in_executor(self.executor, volume_manager.start)
-
-    def stop_limit_volume_thread(self):
-        if not environment_manager.is_admin():
+    def stop_volume_control_service(self):
+        if not EnvironmentManager.is_admin():
             return self.notify("This script requires administrative privileges to modify audio settings.")
-
-        self.loop.run_in_executor(self.executor, volume_manager.stop)
+        self.loop.run_in_executor(self.executor, self.volume_control_service.stop_service)
 
 if __name__ == "__main__":
     app = App()

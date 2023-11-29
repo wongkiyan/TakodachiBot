@@ -30,8 +30,8 @@ async def archive_video(ctx, command):
     command = get_process_command[source_type] + ' ' + command
     await start_archive(ctx, command)
 
-#https://www.cnblogs.com/security-darren/p/4733368.html
-#https://gist.github.com/thelinuxkid/5114777
+# https://www.cnblogs.com/security-darren/p/4733368.html
+# https://gist.github.com/thelinuxkid/5114777
 # Unix, Windows and old Macintosh end-of-line
 newlines = ['\n', '\r\n', '\r']
 async def unbuffered(command_result, stream='stdout'):

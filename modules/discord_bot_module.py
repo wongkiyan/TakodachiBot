@@ -12,7 +12,7 @@ import configs as Configs
 # Modules import
 from modules import archive_module
 
-from library.service import ModuleService
+from library.services.module_service import ModuleService
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -26,7 +26,7 @@ asyncio.set_event_loop(discord_loop)
 @client.event
 async def on_ready():
     print('--------')
-    print('Takodachi Bot')
+    print('Good morning, after noon, evening! It is tako time. Wah! How are you today?')
     print('--------')
     print('Logged in as ' + client.user.name + ' (ID:' + str(client.user.id) + ') | Connected to '
             + str(len(client.guilds)) + ' servers | Connected to ' + str(len(set(client.get_all_members()))) + ' users')
@@ -52,11 +52,11 @@ async def savev(ctx, command):
     await archive_module.archive_video(ctx, command)
 
 class DiscordBotService(ModuleService):
-    def start(self):
+    def start_service(self):
         asyncio.run_coroutine_threadsafe(client.start(Configs.BOT_TOKEN), discord_loop)
         discord_loop.run_forever()
 
-    def stop(self):
+    def stop_service(self):
         if not client.is_closed():
             asyncio.run_coroutine_threadsafe(client.close(), discord_loop)
         client.clear()
@@ -67,11 +67,6 @@ class DiscordBotService(ModuleService):
     def is_running(self):
         return client.is_ready()
 
-    def is_closed(self):
-        return client.is_closed()
-
-
-discord_bot_service = DiscordBotService()
-
 if __name__ == "__main__":
-    discord_bot_service.start()
+    discord_bot_service = DiscordBotService()
+    discord_bot_service.start_service()

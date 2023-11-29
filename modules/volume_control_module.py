@@ -10,10 +10,10 @@ if __name__ == "__main__":
     import os
     # 獲取父目錄的絕對路徑
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../'*1)))
-from library.manager import ModuleManager
-from library.manager import environment_manager
+from library.services.module_service import ModuleService
+from library.managers.environment_manager import EnvironmentManager
 
-class VolumeManager(ModuleManager):
+class VolumeControlService(ModuleService):
     def __init__(self):
         self._volume_control_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._volume_control_loop)
@@ -38,30 +38,28 @@ class VolumeManager(ModuleManager):
         while True:
             # Get the current volume level as a scalar (0.0 to 1.0)
             self.current_volume = self._volume.GetMasterVolumeLevelScalar()
-            print("Current: " + str(self.current_volume) )
+            # print("Current: " + str(self.current_volume))
 
             if abs(round(self.current_volume - self._minimum_volume_limit, 2)) > 0.01:
                 # Check if the current volume exceeds the minimum limit
                 if self.current_volume < self._minimum_volume_limit:
                     # If it does, set the volume to the minimum limit
                     self._volume.SetMasterVolumeLevelScalar(self._minimum_volume_limit, None)
-                    print("Mini limit start: " + str(self._minimum_volume_limit))
+                    # print("Mini limit start: " + str(self._minimum_volume_limit))
 
                 # Check if the current volume exceeds the maximum limit
                 if self.current_volume > self._maximum_volume_limit:
                     # If it does, set the volume to the maximum limit
                     self._volume.SetMasterVolumeLevelScalar(self._maximum_volume_limit, None)
-                    print("Max limit start: " + str(self._maximum_volume_limit))
+                    # print("Max limit start: " + str(self._maximum_volume_limit))
 
             # Wait for a period (1 second) before checking again
             await asyncio.sleep(1)  # Adjust volume every second
 
-    def start(self):
-        if self._is_running:
-            return
-        self._is_running = True
+    def start_service(self):
+        super().start_service()
 
-        if not environment_manager.is_admin():
+        if not EnvironmentManager.is_admin():
             print("This script requires administrative privileges to modify audio settings.")
             return
         print("Volume monitoring started. Press Ctrl+C to stop.")
@@ -69,10 +67,8 @@ class VolumeManager(ModuleManager):
         asyncio.run_coroutine_threadsafe(self.volume_monitoring(), self._volume_control_loop)
         self._volume_control_loop.run_forever()
 
-    def stop(self):
-        if not self._is_running:
-            return
-        self._is_running = False
+    def stop_service(self):
+        super().stop_service()
 
         self._volume_control_loop.stop()
         print()
@@ -81,14 +77,14 @@ class VolumeManager(ModuleManager):
     def is_running(self):
         return self._is_running
 
-volume_manager = VolumeManager()
 
 if __name__ == "__main__":
+    volume_control_service = VolumeControlService()
     try:
-        volume_manager.start()
+        volume_control_service.start_service()
     except KeyboardInterrupt:
         pass
     except Exception as e:
         print(f"Error: {e}")
     finally:
-        volume_manager.stop()
+        volume_control_service.stop_service()
