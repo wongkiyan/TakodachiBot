@@ -18,6 +18,8 @@ get_process_command = {
     'video' : Configs.ARCHIVE_VIDEO_COMMAND,
 }
 
+newlines = ['\n', '\r\n', '\r']
+
 async def archive_live_stream(ctx, command):
     source_type = 'default'
     if 'twitch' in command:
@@ -33,7 +35,6 @@ async def archive_video(ctx, command):
 # https://www.cnblogs.com/security-darren/p/4733368.html
 # https://gist.github.com/thelinuxkid/5114777
 # Unix, Windows and old Macintosh end-of-line
-newlines = ['\n', '\r\n', '\r']
 async def unbuffered(command_result, stream='stdout'):
     stream = getattr(command_result, stream)
     with contextlib.closing(stream):

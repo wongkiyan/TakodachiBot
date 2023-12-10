@@ -1,9 +1,9 @@
 from ctypes import windll
 
-class EnvironmentManager():
+class EnvironmentUtils():
     @classmethod
-    def is_admin(self):
+    def has_permission(self):
         try:
             return windll.shell32.IsUserAnAdmin()
-        except:
+        except Exception:
             return False

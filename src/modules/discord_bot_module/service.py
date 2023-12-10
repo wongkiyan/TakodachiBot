@@ -1,0 +1,41 @@
+import asyncio
+
+if __name__ == "__main__":
+    import os, sys
+    sys.path.append(os.path.abspath(os.path.join(
+        os.path.dirname(__file__), '../../..')))
+
+import configs
+from src.modules.base_service import BaseService
+from src.modules.discord_bot_module.discord_bot import DiscordBot
+
+class DiscordBotService(BaseService):
+    def __init__(self):
+        super().__init__()
+        self._discord_loop = asyncio.new_event_loop()
+        self.discord_bot = DiscordBot()
+
+    def start_service(self):
+        if self.is_running():
+            return
+        super().start_service()
+        asyncio.run_coroutine_threadsafe(self.discord_bot.start(configs.BOT_TOKEN), self._discord_loop)
+        self._discord_loop.run_forever()
+
+    def stop_service(self):
+        if not self.is_running():
+            return
+        super().stop_service()
+        asyncio.run_coroutine_threadsafe(self.discord_bot.close(), self._discord_loop).result()
+        self.discord_bot.clear()
+        print("Discord bot stopped")
+        self._discord_loop.stop()
+
+if __name__ == "__main__":
+    from logging.config import fileConfig
+    fileConfig(configs.LOGGER_CONFIGS_PATH, disable_existing_loggers=False, encoding="utf-8")
+    discord_bot_service = DiscordBotService()
+    try:
+        discord_bot_service.start_service()
+    except KeyboardInterrupt:
+        discord_bot_service.stop_service()
