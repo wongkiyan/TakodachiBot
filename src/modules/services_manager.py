@@ -1,0 +1,91 @@
+from functools import wraps
+import logging
+from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
+
+from configs import (
+    DATABASE_MARIADB_URL as DATABASE_URL,
+    SERVICE_SCHEDULER as SCHEDULER_KEY,
+    SERVICE_HOLOLIVE_SCHEDULE as HOLOLIVE_SCHEDULE_KEY,
+    SERVICE_DISCORD_BOT as DISCORD_BOT_KEY,
+    SERVICE_VOLUME_CONTROL as VOLUME_CONTROL_KEY,
+    SERVICE_APP_ICON as APP_ICON_KEY
+)
+
+from src.modules import DiscordBotService
+from src.modules import VolumeControlService
+from src.modules import SchedulerService
+from src.modules import HololiveScheduleAPI # import error if MySQL unusable
+from src.modules import AppIconService
+from src.utils.database_utils import DatabaseUtils
+
+log = logging.getLogger('exception')
+
+class ServicesManager():
+    _services = OrderedDict()
+    
+    def __init__(self, loop, exit_callback):
+        self.loop = loop
+        self.executor = ThreadPoolExecutor(thread_name_prefix='We-are-here-')
+        self.exit_callback = exit_callback
+        self.database = DatabaseUtils(DATABASE_URL)
+        self.init_services()
+
+    def init_services(self):
+        app_service = AppIconService(self, self.exit_callback)
+        discord_service = DiscordBotService()
+        scheduler_service = SchedulerService()
+        volume_control_service = VolumeControlService()
+
+        self.register_service(SCHEDULER_KEY, scheduler_service)
+        self.register_service(DISCORD_BOT_KEY, discord_service)
+        self.register_service(VOLUME_CONTROL_KEY, volume_control_service)
+        self.register_service(APP_ICON_KEY, app_service)
+
+        self.hololive_schedule_api = HololiveScheduleAPI(self.get_notify_methods(app_service, discord_service), scheduler_service)
+
+    def start_service(self, service_name):
+        service = self.get_service(service_name)
+        if service:
+            try:
+                self.loop.run_in_executor(self.executor, service.start_service)
+            except Exception as exception:
+                self.handle_exception(exception)
+
+    def stop_service(self, service_name):
+        service = self.get_service(service_name)
+        if service:
+            self.loop.run_in_executor(self.executor, service.stop_service)
+
+    def start_default_service(self):
+        self.start_service(SCHEDULER_KEY)
+        self.start_service(DISCORD_BOT_KEY)
+        self.start_service(APP_ICON_KEY)
+
+    def stop_all_services(self):
+        for service in self._services.values():
+            service.stop_service()
+
+    def get_service(self, service_name):
+        return self._services.get(service_name, None)
+
+    def is_service_running(self, service_name):
+        service = self.get_service(service_name)
+        if service:
+            return service.is_running()
+
+    def get_notify_methods(self, app_service, discord_service):
+        return [app_service.notify, discord_service.notify]
+
+    def handle_exception(self, exception):
+        log.exception(f"Exception in {exception.name}: {exception.message}")
+        self.get_service(APP_ICON_KEY).notify_exception(exception)
+        self.get_service(DISCORD_BOT_KEY).notify_exception(exception)
+
+    @classmethod
+    def register_service(cls, service_name, service_instance):
+        cls._services[service_name] = service_instance
+
+    @classmethod
+    def get_service(cls, service_name):
+        return cls._services.get(service_name, None)
