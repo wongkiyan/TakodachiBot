@@ -3,7 +3,6 @@ import os
 import asyncio
 
 from logging.config import fileConfig, dictConfig
-from src.library.logger_dict_config import logging_config
 
 import configs
 
@@ -20,10 +19,10 @@ class App():
         if not os.path.exists(configs.LOG_DIRECTORY):
             os.makedirs(configs.LOG_DIRECTORY)
 
-        if os.path.exists(configs.LOGGER_CONFIGS_PATH):
-            fileConfig(configs.LOGGER_CONFIGS_PATH, disable_existing_loggers=False, encoding="utf-8")
-        else:
-            dictConfig(logging_config)
+        logger_path = configs.LOGGER_CONFIGS_PATH
+        if not os.path.exists(logger_path):
+            logger_path = configs.LOGGER_CONFIGS_EXE_PATH
+        fileConfig(logger_path, disable_existing_loggers=False, encoding="utf-8")
 
     def run(self):
         self.services_manager.start_default_service()
