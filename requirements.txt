@@ -6,4 +6,4 @@ pycaw==20240210
 pystray==0.19.5
 python-dotenv==1.0.1
 pytz==2024.2
-colorlog===6.9.0
+colorlog==6.9.0
