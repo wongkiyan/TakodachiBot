@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Copy takodachi.pyw to takodachi.py (overwrite)
       run: |
-        cp -Force takodachi.pyw takodachi.py
+        cp takodachi.pyw takodachi.py
     - name: List files in the current directory
       run: |
         echo "Listing files in the current directory:"
