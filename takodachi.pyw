@@ -18,7 +18,11 @@ class App():
     def init_logger(self):
         if not os.path.exists(configs.LOG_DIRECTORY):
             os.makedirs(configs.LOG_DIRECTORY)
-        fileConfig(configs.LOGGER_CONFIGS_PATH, disable_existing_loggers=False, encoding="utf-8")
+
+        logger_path = configs.LOGGER_CONFIGS_PATH
+        if not os.path.exists(logger_path):
+            logger_path = configs.LOGGER_CONFIGS_EXE_PATH
+        fileConfig(logger_path, disable_existing_loggers=False, encoding="utf-8")
 
     def run(self):
         self.services_manager.start_default_service()
