@@ -20,7 +20,7 @@ jobs:
     - name: List files in the current directory
       run: |
         echo "Listing files in the current directory:"
-        ls -la  # List all files with details
+        dir
     - name: Create Executable
       id: create_executable
       uses: sayyid5416/pyinstaller@v1
