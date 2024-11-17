@@ -1,0 +1,25 @@
+{
+    "schedule": {
+        "stream": {
+            "id": "stream_id",
+            "link": "stream_link",
+            "title": "stream_title",
+            "description": "stream_description",
+            "thumbnail": "stream_thumbnail",
+            "type": "stream_type",
+            "state": "stream_state",
+            "duration": "stream_duration"
+        },
+        "datetime": {
+            "scheduled_start": "scheduled_start",
+            "actual_start": "actual_start",
+            "actual_end": "actual_end"
+        },
+        "channel": {
+            "id": "channel_id",
+            "name": "channel_name",
+            "short_name": "channel_short_name",
+            "collabs": "collabs"
+        }
+    }
+}
