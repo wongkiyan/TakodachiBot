@@ -1,6 +1,6 @@
 import colorlog
 
-from src.library.dynamic_file_handler import DynamicFileHandler
+from src.library import dynamic_file_handler
 
 # Define the logging configuration
 logging_config = {
@@ -26,19 +26,19 @@ logging_config = {
     },
     'handlers': {
         'fileHandler': {
-            'class': DynamicFileHandler,
+            'class': dynamic_file_handler.DynamicFileHandler,
             'level': 'INFO',
             'formatter': 'simpleFormatter',
             'log_folder_name': '',
         },
         'archiveFileHandler': {
-            'class': DynamicFileHandler,
+            'class': dynamic_file_handler.DynamicFileHandler,
             'level': 'INFO',
             'formatter': 'simpleFormatter',
             'log_folder_name': 'archive_logs',
         },
         'remotePCFileHandler': {
-            'class': DynamicFileHandler,
+            'class': dynamic_file_handler.DynamicFileHandler,
             'level': 'INFO',
             'formatter': 'simpleFormatter',
             'log_folder_name': 'Remote_PC_logs',
