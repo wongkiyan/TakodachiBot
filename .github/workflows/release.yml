@@ -25,6 +25,7 @@ jobs:
         spec: 'takodachi.py'
         upload_exe_with_name: 'takodachi'
         clean_checkout: 'false'
+        requirements: 'requirements.txt'
         options: --onefile --noconsole
     - name: Release
       uses: softprops/action-gh-release@v2
