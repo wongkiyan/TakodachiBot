@@ -19,7 +19,7 @@ class DiscordBotService(BaseService):
         if self.is_running():
             return
         super().start_service()
-        asyncio.run_coroutine_threadsafe(self.discord_bot.start(configs.BOT_TOKEN), self._discord_loop)
+        asyncio.run_coroutine_threadsafe(self.discord_bot.start(str(configs.BOT_TOKEN)), self._discord_loop)
         self._discord_loop.run_forever()
 
     def stop_service(self):

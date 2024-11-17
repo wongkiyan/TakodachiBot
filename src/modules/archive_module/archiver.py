@@ -35,12 +35,12 @@ class Archiver():
         source_type = 'default'
         if 'twitch' in command:
             source_type = 'twitch'
-        command = get_process_command[source_type] + ' ' + command
+        command = str(get_process_command[source_type]) + ' ' + command
         await self.start_archive(ctx, command)
 
     async def archive_video(self, ctx, command):
         source_type = 'video'
-        command = get_process_command[source_type] + ' ' + command
+        command = str(get_process_command[source_type]) + ' ' + command
         await self.start_archive(ctx, command)
 
     # https://www.cnblogs.com/security-darren/p/4733368.html

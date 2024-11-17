@@ -26,10 +26,10 @@ class DiscordBot(commands.Bot):
         await asyncio.gather(*tasks)
 
     async def start_bot(self):
-        await self.start(token=configs.BOT_TOKEN)
+        await self.start(token=str(configs.BOT_TOKEN))
 
     def run_bot(self):
-        self.run(configs.BOT_TOKEN, log_level=20)
+        self.run(str(configs.BOT_TOKEN), log_level=20)
 
     async def stop_bot(self):
         await self.close()
