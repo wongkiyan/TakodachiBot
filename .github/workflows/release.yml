@@ -12,11 +12,9 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Rename .pyw to .py
+    - name: Copy takodachi.pyw to takodachi.py (overwrite)
       run: |
-        mv takodachi.pyw takodachi.py
+        cp -f takodachi.pyw takodachi.py
     - name: Create Executable
       id: create_executable
       uses: sayyid5416/pyinstaller@v1
@@ -25,9 +23,6 @@ jobs:
         spec: 'takodachi.py'
         upload_exe_with_name: 'takodachi'
         options: --onefile
-    - name: Rename back to .pyw (optional)
-      run: |
-        mv takodachi.py takodachi.pyw
     - name: Release
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
