@@ -153,5 +153,4 @@ cython_debug/
 
 .vscode/settings.json
 tests/
-.vscode/tasks.json
 takodachi.py
