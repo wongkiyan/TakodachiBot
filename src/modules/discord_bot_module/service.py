@@ -31,6 +31,14 @@ class DiscordBotService(BaseService):
         print("Discord bot stopped")
         self._discord_loop.stop()
 
+    def is_running(self) -> bool:
+        return super().is_running()
+
+    def notify(self, message):
+        if self.is_running():
+            asyncio.run_coroutine_threadsafe(self.discord_bot.send_message_to_channel(
+                configs.DISCORD_EXCEPTION_CHANNEL_ID ,message), self._discord_loop).result()
+
 if __name__ == "__main__":
     from logging.config import fileConfig
     fileConfig(configs.LOGGER_CONFIGS_PATH, disable_existing_loggers=False, encoding="utf-8")

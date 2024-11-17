@@ -1,6 +1,7 @@
 import psutil
-from src.utils.datetime_utils import format_datetime
+from src.utils.datetime_utils import format_datetime_by_timestamp, count_difference_by_timestamp
 import sys
+from datetime import datetime
 
 def get_pyw_pid_list(app_name):
     pyw_pid_list = []
@@ -19,7 +20,8 @@ def print_english_details(app_name, process):
     print()
     print(f"Command Line: {' '.join(process.cmdline())}")
     print()
-    print(f"Create Time: {format_datetime(process.create_time())}")
+    print(f"Create Time: {format_datetime_by_timestamp(process.create_time())}")
+    print(f"Running Time: {count_difference_by_timestamp(process.create_time())}")
     print()
     print(f"CPU Usage (%): {process.cpu_percent()}%")
     print(f"Memory Usage (%): {process.memory_percent()}%")

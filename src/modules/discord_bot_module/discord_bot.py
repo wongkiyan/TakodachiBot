@@ -34,6 +34,14 @@ class DiscordBot(commands.Bot):
     async def stop_bot(self):
         await self.close()
 
+    async def send_message_to_channel(self, channel_id, message):
+        channel = self.get_channel(channel_id)
+        
+        if channel:
+            await channel.send(message)
+        else:
+            print(f"Channel with ID {channel_id} not found.")
+
 if __name__ == "__main__":
     discord_bot = DiscordBot()
     try:

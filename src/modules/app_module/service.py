@@ -1,4 +1,4 @@
-from src.modules.base_service import BaseService
+from ..base_service import BaseService
 from .app_icon import AppIcon
 
 class AppIconService(BaseService):
@@ -19,3 +19,7 @@ class AppIconService(BaseService):
         self.app_icon.visible = False
         self.app_icon.stop()
         print("App icon stopped")
+
+    def notify(self, message):
+        if super().is_running:
+            self.app_icon.notify(message)
