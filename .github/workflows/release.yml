@@ -17,6 +17,10 @@ jobs:
     - name: Copy takodachi.pyw to takodachi.py (overwrite)
       run: |
         cp -Force takodachi.pyw takodachi.py
+    - name: List files in the current directory
+      run: |
+        echo "Listing files in the current directory:"
+        ls -la  # List all files with details
     - name: Create Executable
       id: create_executable
       uses: sayyid5416/pyinstaller@v1
