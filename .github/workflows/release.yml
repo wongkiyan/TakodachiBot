@@ -12,6 +12,8 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
     - name: Copy takodachi.pyw to takodachi.py (overwrite)
       run: |
         cp -Force takodachi.pyw takodachi.py
