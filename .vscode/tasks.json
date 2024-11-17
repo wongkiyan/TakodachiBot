@@ -24,9 +24,11 @@
             "args": [
                 "takodachi.py",
                 "--onefile",
-                "--noconsole",
+                "--console",
                 "--add-data",
                 "'assets/icon_logo.png;assets'",
+                "--add-data",
+                "'src/library/logger_exe.conf;src/library'",
             ],
             "group": {
                 "kind": "build",
