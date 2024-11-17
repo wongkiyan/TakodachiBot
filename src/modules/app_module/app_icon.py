@@ -37,7 +37,6 @@ class AppIcon(Icon):
             MenuItem("Discord Status", self.show_discord_status),
             Menu.SEPARATOR,
             MenuItem("Volume Control",volume_submenu),
-            MenuItem("Start Spider", self.start_spider),
             Menu.SEPARATOR,
             MenuItem("Exit", action=self.exit),
         )
@@ -64,9 +63,6 @@ class AppIcon(Icon):
 
     def stop_volume_control(self):
         self.services_manager.stop_service(configs.SERVICE_VOLUME_CONTROL)
-
-    def start_spider(self):
-        self.services_manager.hololive_schedule_api.run_crawler_api()
 
     def exit(self):
         self.exit_callback()

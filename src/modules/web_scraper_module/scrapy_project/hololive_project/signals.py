@@ -1,1 +1,0 @@
-schedule_data_updated = object()
