@@ -1,22 +1,26 @@
 # Load configuration parameters
-import os
+import os, sys
 from dotenv import load_dotenv
 from urllib.parse import quote_plus
 
-base_folder_path=os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))
+base_path = os.path.dirname(__file__)
 
 # env setup
-env_path = os.path.join(base_folder_path, '.env')
-load_dotenv(dotenv_path=env_path)
+env_file_path = os.path.join(base_path, '.env')
+if getattr(sys, 'frozen', False):
+    env_file_path = os.path.join(os.path.dirname(sys.executable), '.env')
+load_dotenv(dotenv_path=env_file_path)
 
 # App setting
 APP_NAME = "Takodachi"
 APP_TITLE = "Wah!"
-APP_ICON_PATH = os.path.join(base_folder_path, './assets/icon_logo.png')
+APP_ICON_PATH = os.path.join(base_path, './assets/icon_logo.png')
 
-FOLDER_PARENT_PATCH = os.path.join(base_folder_path, '../')
+FOLDER_PARENT_PATCH = os.path.join(base_path, '../')
 APP_PROCESS_NAME = "takodachi.pyw"
 APP_STATUS_BAT_PATCH = os.path.join(FOLDER_PARENT_PATCH,"TakodachiBot_Status.bat")
+if getattr(sys, 'frozen', False):
+    APP_STATUS_BAT_PATCH = os.path.join(os.path.dirname(sys.executable), 'TakodachiBot_Status.bat')
 
 # Service setting
 SERVICE_APP_ICON = 'app_icon'
@@ -37,8 +41,8 @@ DATABASE_MARIADB_URL = f"mariadb+pymysql://{DATABASE_MARIADB_USER}:{quote_plus(s
 
 # Logger setting
 LOG_DIRECTORY = 'logs'
-LOGGER_CONFIGS_PATH = os.path.join(os.path.dirname(__file__), 'src', 'library', 'logger.conf')
-LOGGER_CONFIGS_EXE_PATH = os.path.join(os.path.dirname(__file__), 'src', 'library', 'logger_exe.conf')
+LOGGER_CONFIGS_PATH = os.path.join(base_path, 'src', 'library', 'logger.conf')
+LOGGER_CONFIGS_EXE_PATH = os.path.join(base_path, 'src', 'library', 'logger_exe.conf')
 
 # API setting
 API_YOUTUBE_KEY = os.getenv("YOUTUBE_API_KEY")
