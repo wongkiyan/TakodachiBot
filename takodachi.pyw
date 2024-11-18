@@ -2,7 +2,7 @@
 import os
 import asyncio
 
-from logging.config import fileConfig, dictConfig
+from logging.config import fileConfig
 
 import configs
 
